@@ -38,3 +38,10 @@ user_agent.append("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:55.0) Gecko/20100101 F
 user_agent.append("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Safari/537.36")
 user_agent.append("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8")
 user_agent.append("Mozilla/5.0 (Windows NT 6.1; rv:56.0) Gecko/20100101 Firefox/56.0")
+
+colors=dict()
+colors['red'] = "\033[31m"
+colors['grn'] = "\033[32m"
+colors['ble'] = "\033[33m"
+colors['cyn'] = "\033[44m"
+colors['rst'] = "\033[0m"

