@@ -43,5 +43,5 @@ colors=dict()
 colors['red'] = "\033[31m"
 colors['grn'] = "\033[32m"
 colors['ble'] = "\033[33m"
-colors['cyn'] = "\033[44m"
+colors['cyn'] = "\033[36m"
 colors['rst'] = "\033[0m"
